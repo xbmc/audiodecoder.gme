@@ -19,6 +19,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
+#ifdef BUILD_XBMC_ADDON
+#include "xbmc/libXBMC_addon.h"
+
+extern ADDON::CHelper_libXBMC_addon* XBMC;
+#endif
+
 // Data_Reader
 
 blargg_err_t Data_Reader::read( void* p, int n )
@@ -45,7 +51,7 @@ blargg_err_t Data_Reader::read_avail( void* p, int* n_ )
 {
 	assert( *n_ >= 0 );
 	
-	int n = min( (BOOST::uint64_t)(*n_), remain() );
+	int n = std::min( (BOOST::uint64_t)(*n_), remain() );
 	*n_ = 0;
 	
 	if ( n < 0 )
@@ -77,7 +83,7 @@ blargg_err_t Data_Reader::skip_v( int count )
 	char buf [512];
 	while ( count )
 	{
-		int n = min( count, (int) sizeof buf );
+		int n = std::min( count, (int) sizeof buf );
 		count -= n;
 		RETURN_ERR( read_v( buf, n ) );
 	}
@@ -138,7 +144,7 @@ blargg_err_t File_Reader::skip_v( BOOST::uint64_t n )
 Subset_Reader::Subset_Reader( Data_Reader* dr, BOOST::uint64_t size ) :
 	in( dr )
 {
-	set_remain( min( size, dr->remain() ) );
+	set_remain( std::min( size, dr->remain() ) );
 }
 
 blargg_err_t Subset_Reader::read_v( void* p, int s )
@@ -160,7 +166,7 @@ Remaining_Reader::Remaining_Reader( void const* h, int size, Data_Reader* r ) :
 
 blargg_err_t Remaining_Reader::read_v( void* out, int count )
 {
-	int first = min( count, header_remain );
+	int first = std::min( count, header_remain );
 	if ( first )
 	{
 		memcpy( out, header, first );
@@ -519,6 +525,12 @@ static FILE* blargg_fopen( const char path [], const char mode [] )
 	return file;
 }
 
+#elif defined(BUILD_XBMC_ADDON)
+static inline FILE* blargg_fopen(const char path [], const char mode [])
+{
+  return (FILE*)XBMC->OpenFile(path, 0);
+}
+
 #else
 
 static inline FILE* blargg_fopen( const char path [], const char mode [] )
@@ -528,6 +540,38 @@ static inline FILE* blargg_fopen( const char path [], const char mode [] )
 
 #endif
 
+#ifdef BUILD_XBMC_ADDON
+static inline void blargg_fclose(void* f)
+{
+  XBMC->CloseFile(f);
+}
+
+static int blargg_fread(void* p, int size, int num, void* file)
+{
+  return XBMC->ReadFile(file, p, size*num);
+}
+
+static int blargg_feof(void* f)
+{
+  return XBMC->GetFilePosition(f) == XBMC->GetFileLength(f);
+}
+
+#else
+static inline void blargg_fclose(FILE* f)
+{
+  fclose(f);
+}
+
+static int blargg_fread(void* p, int size, int num, FILE* file_)
+{
+  return fread( p, size, num, STATIC_CAST(FILE*, file_) );
+}
+
+static int blargg_feof(FILE* f)
+{
+  return feof(f);
+}
+#endif
 
 // Std_File_Reader
 
@@ -563,6 +607,9 @@ static blargg_err_t blargg_fopen( FILE** out, const char path [] )
 
 static blargg_err_t blargg_fsize( FILE* f, long* out )
 {
+#ifdef BUILD_XBMC_ADDON
+        *out = XBMC->GetFileLength(f);
+#else
 	if ( fseek( f, 0, SEEK_END ) )
 		return blargg_err_file_io;
 	
@@ -572,7 +619,7 @@ static blargg_err_t blargg_fsize( FILE* f, long* out )
 	
 	if ( fseek( f, 0, SEEK_SET ) )
 		return blargg_err_file_io;
-	
+#endif
 	return blargg_ok;
 }
 
@@ -587,7 +634,7 @@ blargg_err_t Std_File_Reader::open( const char path [] )
 	blargg_err_t err = blargg_fsize( f, &s );
 	if ( err )
 	{
-		fclose( f );
+		blargg_fclose( f );
 		return err;
 	}
 	
@@ -599,16 +646,18 @@ blargg_err_t Std_File_Reader::open( const char path [] )
 
 void Std_File_Reader::make_unbuffered()
 {
+#ifndef BUILD_XBMC_ADDON
 	if ( setvbuf( STATIC_CAST(FILE*, file_), NULL, _IONBF, 0 ) )
 		check( false ); // shouldn't fail, but OK if it does
+#endif
 }
 
 blargg_err_t Std_File_Reader::read_v( void* p, int s )
 {
-	if ( (size_t) s != fread( p, 1, s, STATIC_CAST(FILE*, file_) ) )
+	if ( (size_t) s != blargg_fread( p, 1, s, STATIC_CAST(FILE*, file_) ) )
 	{
 		// Data_Reader's wrapper should prevent EOF
-		check( !feof( STATIC_CAST(FILE*, file_) ) );
+		check( !blargg_feof( STATIC_CAST(FILE*, file_) ) );
 		
 		return blargg_err_file_io;
 	}
@@ -620,12 +669,14 @@ blargg_err_t Std_File_Reader::seek_v( BOOST::uint64_t n )
 {
 #ifdef _WIN32
 	if ( _fseeki64( STATIC_CAST(FILE*, file_), n, SEEK_SET ) )
+#elif defined(BUILD_XBMC_ADDON)
+        if (XBMC->SeekFile(file_, n, SEEK_SET))
 #else
     if ( fseeko( STATIC_CAST(FILE*, file_), n, SEEK_SET ) )
 #endif
 	{
 		// Data_Reader's wrapper should prevent EOF
-		check( !feof( STATIC_CAST(FILE*, file_) ) );
+		check( !blargg_feof( STATIC_CAST(FILE*, file_) ) );
 		
 		return blargg_err_file_io;
 	}
@@ -637,128 +688,7 @@ void Std_File_Reader::close()
 {
 	if ( file_ )
 	{
-		fclose( STATIC_CAST(FILE*, file_) );
+		blargg_fclose( STATIC_CAST(FILE*, file_) );
 		file_ = NULL;
 	}
 }
-
-
-// Gzip_File_Reader
-
-#ifdef HAVE_ZLIB_H
-
-#include "zlib.h"
-
-static const char* get_gzip_eof( const char path [], long* eof )
-{
-	FILE* file;
-	RETURN_ERR( blargg_fopen( &file, path ) );
-
-	int const h_size = 4;
-	unsigned char h [h_size];
-	
-	// read four bytes to ensure that we can seek to -4 later
-	if ( fread( h, 1, h_size, file ) != (size_t) h_size || h[0] != 0x1F || h[1] != 0x8B )
-	{
-		// Not gzipped
-		if ( ferror( file ) )
-			return blargg_err_file_io;
-		
-		if ( fseek( file, 0, SEEK_END ) )
-			return blargg_err_file_io;
-		
-		*eof = ftell( file );
-		if ( *eof < 0 )
-			return blargg_err_file_io;
-	}
-	else
-	{
-		// Gzipped; get uncompressed size from end
-		if ( fseek( file, -h_size, SEEK_END ) )
-			return blargg_err_file_io;
-		
-		if ( fread( h, 1, h_size, file ) != (size_t) h_size )
-			return blargg_err_file_io;
-		
-		*eof = get_le32( h );
-	}
-	
-	if ( fclose( file ) )
-		check( false );
-	
-	return blargg_ok;
-}
-
-Gzip_File_Reader::Gzip_File_Reader()
-{
-	file_ = NULL;
-}
-
-Gzip_File_Reader::~Gzip_File_Reader()
-{
-	close();
-}
-
-blargg_err_t Gzip_File_Reader::open( const char path [] )
-{
-	close();
-	
-	long s;
-	RETURN_ERR( get_gzip_eof( path, &s ) );
-
-	file_ = gzopen( path, "rb" );
-	if ( !file_ )
-		return blargg_err_file_read;
-	
-	set_size( s );
-	return blargg_ok;
-}
-
-static blargg_err_t convert_gz_error( gzFile file )
-{
-	int err;
-	gzerror( file, &err );
-	
-	switch ( err )
-	{
-	case Z_STREAM_ERROR:    break;
-	case Z_DATA_ERROR:      return blargg_err_file_corrupt;
-	case Z_MEM_ERROR:       return blargg_err_memory;
-	case Z_BUF_ERROR:       break;
-	}
-	return blargg_err_internal;
-}
-
-blargg_err_t Gzip_File_Reader::read_v( void* p, int s )
-{
-    int result = gzread( (gzFile) file_, p, s );
-	if ( result != s )
-	{
-		if ( result < 0 )
-            return convert_gz_error( (gzFile) file_ );
-		
-		return blargg_err_file_corrupt;
-	}
-	
-	return blargg_ok;
-}
-
-blargg_err_t Gzip_File_Reader::seek_v( int n )
-{
-    if ( gzseek( (gzFile) file_, n, SEEK_SET ) < 0 )
-        return convert_gz_error( (gzFile) file_ );
-
-	return blargg_ok;
-}
-
-void Gzip_File_Reader::close()
-{
-	if ( file_ )
-	{
-        if ( gzclose( (gzFile) file_ ) )
-			check( false );
-		file_ = NULL;
-	}
-}
-
-#endif

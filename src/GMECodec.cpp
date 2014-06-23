@@ -182,6 +182,8 @@ bool DeInit(void* context)
   GMEContext* gme = (GMEContext*)context;
   gme_delete(gme->gme);
   delete gme;
+
+  return true;
 }
 
 bool ReadTag(const char* strFile, char* title, char* artist, int* length)

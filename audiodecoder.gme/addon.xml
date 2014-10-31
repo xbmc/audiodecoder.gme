@@ -5,10 +5,10 @@
   name="GME Audio Decoder"
   provider-name="spiff">
   <requires>
-    <import addon="xbmc.audiodecoder" version="1.0.0"/>
+    <import addon="kodi.audiodecoder" version="1.0.0"/>
   </requires>
   <extension
-    point="xbmc.audiodecoder"
+    point="kodi.audiodecoder"
     name="gme"
     extension=".gbs|.spc|.nsf|.vgm|.kss|.hes|.ay|.sap|.sgc|.gmestream"
     tags="true"

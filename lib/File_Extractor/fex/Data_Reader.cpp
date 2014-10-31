@@ -19,8 +19,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-#ifdef BUILD_XBMC_ADDON
-#include "xbmc/libXBMC_addon.h"
+#ifdef BUILD_KODI_ADDON
+#include "kodi/libXBMC_addon.h"
 
 extern ADDON::CHelper_libXBMC_addon* XBMC;
 #endif
@@ -525,7 +525,7 @@ static FILE* blargg_fopen( const char path [], const char mode [] )
 	return file;
 }
 
-#elif defined(BUILD_XBMC_ADDON)
+#elif defined(BUILD_KODI_ADDON)
 static inline FILE* blargg_fopen(const char path [], const char mode [])
 {
   return (FILE*)XBMC->OpenFile(path, 0);
@@ -540,7 +540,7 @@ static inline FILE* blargg_fopen( const char path [], const char mode [] )
 
 #endif
 
-#ifdef BUILD_XBMC_ADDON
+#ifdef BUILD_KODI_ADDON
 static inline void blargg_fclose(void* f)
 {
   XBMC->CloseFile(f);
@@ -607,7 +607,7 @@ static blargg_err_t blargg_fopen( FILE** out, const char path [] )
 
 static blargg_err_t blargg_fsize( FILE* f, long* out )
 {
-#ifdef BUILD_XBMC_ADDON
+#ifdef BUILD_KODI_ADDON
         *out = XBMC->GetFileLength(f);
 #else
 	if ( fseek( f, 0, SEEK_END ) )
@@ -646,7 +646,7 @@ blargg_err_t Std_File_Reader::open( const char path [] )
 
 void Std_File_Reader::make_unbuffered()
 {
-#ifndef BUILD_XBMC_ADDON
+#ifndef BUILD_KODI_ADDON
 	if ( setvbuf( STATIC_CAST(FILE*, file_), NULL, _IONBF, 0 ) )
 		check( false ); // shouldn't fail, but OK if it does
 #endif
@@ -667,10 +667,10 @@ blargg_err_t Std_File_Reader::read_v( void* p, int s )
 
 blargg_err_t Std_File_Reader::seek_v( BOOST::uint64_t n )
 {
-#ifdef _WIN32
-	if ( _fseeki64( STATIC_CAST(FILE*, file_), n, SEEK_SET ) )
-#elif defined(BUILD_XBMC_ADDON)
+#if defined(BUILD_KODI_ADDON)
         if (XBMC->SeekFile(file_, n, SEEK_SET))
+#elif defined(_WIN32)
+	if ( _fseeki64( STATIC_CAST(FILE*, file_), n, SEEK_SET ) )
 #else
     if ( fseeko( STATIC_CAST(FILE*, file_), n, SEEK_SET ) )
 #endif

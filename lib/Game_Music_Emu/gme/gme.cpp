@@ -216,7 +216,7 @@ gme_err_t gme_load_data( Music_Emu* gme, void const* data, long size )
 
 gme_err_t gme_load_custom( Music_Emu* gme, gme_reader_t func, long size, void* data )
 {
-	Callback_Reader in( func, (uint64_t)size, data );
+	Callback_Reader in( func, size, data );
 	return gme->load( in );
 }
 

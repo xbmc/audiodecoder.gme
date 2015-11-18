@@ -20,7 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 #include "blargg_source.h"
 
 #ifdef BUILD_KODI_ADDON
-#include "kodi/libXBMC_addon.h"
+#include "libXBMC_addon.h"
 
 extern ADDON::CHelper_libXBMC_addon* XBMC;
 #endif

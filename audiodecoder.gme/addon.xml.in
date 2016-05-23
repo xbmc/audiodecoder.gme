@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="audiodecoder.gme"
-  version="1.0.0"
+  version="1.1.0"
   name="GME Audio Decoder"
   provider-name="spiff">
   <requires>
@@ -13,10 +13,10 @@
     extension=".gbs|.spc|.nsf|.vgm|.kss|.hes|.ay|.sap|.sgc|.gmestream"
     tags="true"
     tracks="true"
-    library_linux="audiodecoder.gme.so"/>
+    library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Game Music Emu Audio Decoder</summary>
     <description lang="en">Game Music Emu Audio Decoder</description>
-    <platform>all</platform>
+    <platform>@PLATFORM@</platform>
   </extension>
 </addon>

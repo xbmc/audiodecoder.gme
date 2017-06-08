@@ -136,6 +136,9 @@ int64_t Seek(void* context, int64_t time)
 
 bool DeInit(void* context)
 {
+  if(!context)
+    return true;
+
   GMEContext* gme = (GMEContext*)context;
   gme_delete(gme->gme);
   delete gme;

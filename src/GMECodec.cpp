@@ -17,160 +17,135 @@
  *
  */
 
-#include "libXBMC_addon.h"
+#include <kodi/addon-instance/AudioDecoder.h>
+#include <kodi/Filesystem.h>
 #include "gme.h"
 
-extern "C" {
-#include <stdio.h>
-#include <stdint.h>
-
-#include "kodi_audiodec_dll.h"
-
-ADDON::CHelper_libXBMC_addon *XBMC           = NULL;
-
-ADDON_STATUS ADDON_Create(void* hdl, void* props)
-{
-  if (!XBMC)
-    XBMC = new ADDON::CHelper_libXBMC_addon;
-
-  if (!XBMC->RegisterMe(hdl))
-  {
-    delete XBMC, XBMC=NULL;
-    return ADDON_STATUS_PERMANENT_FAILURE;
-  }
-
-  return ADDON_STATUS_OK;
-}
-
-//-- Destroy ------------------------------------------------------------------
-// Do everything before unload of this add-on
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-void ADDON_Destroy()
-{
-  XBMC=NULL;
-}
-
-//-- GetStatus ---------------------------------------------------------------
-// Returns the current Status of this visualisation
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_GetStatus()
-{
-  return ADDON_STATUS_OK;
-}
-
-//-- SetSetting ---------------------------------------------------------------
-// Set a specific Setting value (called from XBMC)
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_SetSetting(const char *strSetting, const void* value)
-{
-  return ADDON_STATUS_OK;
-}
-
 struct GMEContext {
-  gme_t* gme;
+  gme_t* gme = nullptr;
   int len;
 };
 
-void* Init(const char* strFile, unsigned int filecache, int* channels,
-           int* samplerate, int* bitspersample, int64_t* totaltime,
-           int* bitrate, AEDataFormat* format, const AEChannel** channelinfo)
+class CGMECodec : public kodi::addon::CInstanceAudioDecoder,
+                  public kodi::addon::CAddonBase
 {
-  int track=0;
-  std::string toLoad(strFile);
-  if (toLoad.rfind("stream") != std::string::npos)
+public:
+  CGMECodec(KODI_HANDLE instance) :
+    CInstanceAudioDecoder(instance)
   {
-    size_t iStart=toLoad.rfind('-') + 1;
-    track = atoi(toLoad.substr(iStart, toLoad.size()-iStart-10).c_str())-1;
-    //  The directory we are in, is the file
-    //  that contains the bitstream to play,
-    //  so extract it
-    size_t slash = toLoad.rfind('\\');
-    if (slash == std::string::npos)
-      slash = toLoad.rfind('/');
-    toLoad = toLoad.substr(0, slash);
   }
 
-  GMEContext* result = new GMEContext;
-
-  gme_open_file(toLoad.c_str(), &result->gme, 48000);
-  if (!result->gme)
+  virtual ~CGMECodec()
   {
-    delete result;
-    return NULL;
+    if (ctx.gme)
+      gme_delete(ctx.gme);
   }
-  *channels = 2;
-  *samplerate = 48000;
-  *bitspersample = 16;
-  *bitrate = 0.0;
-  *format = AE_FMT_S16NE;
-  gme_info_t* out;
-  gme_track_info(result->gme, &out, track);
-  *totaltime = result->len = out->play_length;
-  static enum AEChannel map[3] = {
-    AE_CH_FL, AE_CH_FR, AE_CH_NULL
-  };
-  *channelinfo = map;
-  gme_start_track(result->gme, track);
-  return result;
-}
 
-int ReadPCM(void* context, uint8_t* pBuffer, int size, int *actualsize)
-{
-  GMEContext* gme = (GMEContext*)context;
-  if (gme_tell(gme->gme) >= gme->len)
-    return -1;
-  *actualsize = size;
-  gme_play(gme->gme, size/2, (short*)pBuffer);
-  return 0;
-}
+  virtual bool Init(const std::string& filename, unsigned int filecache,
+                    int& channels, int& samplerate,
+                    int& bitspersample, int64_t& totaltime,
+                    int& bitrate, AEDataFormat& format,
+                    std::vector<AEChannel>& channellist) override
+  {
+    int track=0;
+    std::string toLoad(filename);
+    if (toLoad.rfind("stream") != std::string::npos)
+    {
+      size_t iStart=toLoad.rfind('-') + 1;
+      track = atoi(toLoad.substr(iStart, toLoad.size()-iStart-10).c_str())-1;
+      //  The directory we are in, is the file
+      //  that contains the bitstream to play,
+      //  so extract it
+      size_t slash = toLoad.rfind('\\');
+      if (slash == std::string::npos)
+        slash = toLoad.rfind('/');
+      toLoad = toLoad.substr(0, slash);
+    }
 
-int64_t Seek(void* context, int64_t time)
-{
-  GMEContext* gme = (GMEContext*)context;
-  gme_seek(gme->gme, time);
-  return gme_tell(gme->gme);
-}
 
-bool DeInit(void* context)
-{
-  if(!context)
+    gme_open_file(toLoad.c_str(), &ctx.gme, 48000);
+    if (!ctx.gme)
+      return false;
+
+    channels = 2;
+    samplerate = 48000;
+    bitspersample = 16;
+    bitrate = 0.0;
+    format = AE_FMT_S16NE;
+    gme_info_t* out;
+    gme_track_info(ctx.gme, &out, track);
+    totaltime = ctx.len = out->play_length;
+    channellist = { AE_CH_FL, AE_CH_FR };
+    gme_start_track(ctx.gme, track);
+
     return true;
+  }
 
-  GMEContext* gme = (GMEContext*)context;
-  gme_delete(gme->gme);
-  delete gme;
+  virtual int ReadPCM(uint8_t* buffer, int size, int& actualsize) override
+  {
+    if (gme_tell(ctx.gme) >= ctx.len)
+      return -1;
+    actualsize = size;
+    gme_play(ctx.gme, size/2, (short*)buffer);
+    return 0;
+  }
 
-  return true;
-}
+  virtual int64_t Seek(int64_t time) override
+  {
+    gme_seek(ctx.gme, time);
+    return gme_tell(ctx.gme);
+  }
 
-bool ReadTag(const char* strFile, char* title, char* artist, int* length)
+  virtual bool ReadTag(const std::string& filename, std::string& title,
+                       std::string& artist, int& length) override
+  {
+    gme_t* gme=nullptr;
+    gme_open_file(filename.c_str(), &gme, 48000);
+    if (!gme)
+      return false;
+
+    gme_info_t* out;
+    gme_track_info(gme, &out, 0);
+    length = out->play_length/1000;
+    title = out->song;
+    if (title.empty())
+      title = out->game;
+    artist = out->author;
+    gme_delete(gme);
+    return true;
+  }
+
+  virtual int TrackCount(const std::string& fileName) override
+  {
+    gme_t* gme=nullptr;
+    gme_open_file(fileName.c_str(), &gme, 48000);
+    if (!gme)
+      return 1;
+
+    int result = gme_track_count(gme);
+    gme_delete(gme);
+
+    return result;
+  }
+
+private:
+  GMEContext ctx;
+};
+
+
+class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
-  gme_t* gme=NULL;
-  gme_open_file(strFile, &gme, 48000);
-  if (!gme)
-    return 1;
-  gme_info_t* out;
-  gme_track_info(gme, &out, 0);
-  *length = out->play_length/1000;
-  strcpy(title, out->song);
-  strcpy(artist, out->author);
-  gme_delete(gme);
-  return *length != 0;
-}
+public:
+  CMyAddon() { }
+  virtual ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  {
+    addonInstance = new CGMECodec(instance);
+    return ADDON_STATUS_OK;
+  }
+  virtual ~CMyAddon()
+  {
+  }
+};
 
-int TrackCount(const char* strFile)
-{
-  gme_t* gme=NULL;
-  gme_open_file(strFile, &gme, 48000);
-  if (!gme)
-    return 1;
 
-  int result = gme_track_count(gme);
-  gme_delete(gme);
-
-  return result;
-}
-}
+ADDONCREATOR(CMyAddon);

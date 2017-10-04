@@ -20,9 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 #include "blargg_source.h"
 
 #ifdef BUILD_KODI_ADDON
-#include "libXBMC_addon.h"
-
-extern ADDON::CHelper_libXBMC_addon* XBMC;
+#include <kodi/Filesystem.h>
 #endif
 
 // Data_Reader
@@ -528,7 +526,13 @@ static FILE* blargg_fopen( const char path [], const char mode [] )
 #elif defined(BUILD_KODI_ADDON)
 static inline FILE* blargg_fopen(const char path [], const char mode [])
 {
-  return (FILE*)XBMC->OpenFile(path, 0);
+  kodi::vfs::CFile* file = new kodi::vfs::CFile;
+  if (!file->OpenFile(path, 0))
+  {
+    delete file;
+    return nullptr;
+  }
+  return (FILE*)file;
 }
 
 #else
@@ -543,17 +547,18 @@ static inline FILE* blargg_fopen( const char path [], const char mode [] )
 #ifdef BUILD_KODI_ADDON
 static inline void blargg_fclose(void* f)
 {
-  XBMC->CloseFile(f);
+  delete static_cast<kodi::vfs::CFile*>(f);
 }
 
 static int blargg_fread(void* p, int size, int num, void* file)
 {
-  return XBMC->ReadFile(file, p, size*num);
+  return static_cast<kodi::vfs::CFile*>(file)->Read(p, size*num);
 }
 
 static int blargg_feof(void* f)
 {
-  return XBMC->GetFilePosition(f) == XBMC->GetFileLength(f);
+  kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(f);
+  return file->GetPosition() == file->GetLength();
 }
 
 #else
@@ -608,7 +613,7 @@ static blargg_err_t blargg_fopen( FILE** out, const char path [] )
 static blargg_err_t blargg_fsize( FILE* f, long* out )
 {
 #ifdef BUILD_KODI_ADDON
-        *out = XBMC->GetFileLength(f);
+        *out = reinterpret_cast<kodi::vfs::CFile*>(f)->GetLength();
 #else
 	if ( fseek( f, 0, SEEK_END ) )
 		return blargg_err_file_io;
@@ -668,7 +673,7 @@ blargg_err_t Std_File_Reader::read_v( void* p, int s )
 blargg_err_t Std_File_Reader::seek_v( BOOST::uint64_t n )
 {
 #if defined(BUILD_KODI_ADDON)
-        if (XBMC->SeekFile(file_, n, SEEK_SET))
+        if (static_cast<kodi::vfs::CFile*>(file_)->Seek(n, SEEK_SET))
 #elif defined(_WIN32)
 	if ( _fseeki64( STATIC_CAST(FILE*, file_), n, SEEK_SET ) )
 #else

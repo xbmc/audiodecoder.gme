@@ -320,8 +320,8 @@ bool Vgm_Core::DecompressDataBlk(VGM_PCM_DATA* Bank, unsigned DataSize, const by
 	FUINT8 ValSize;
 	FUINT8 InShift;
 	FUINT8 OutShift;
-	UINT8* Ent1B;
-	UINT16* Ent2B;
+	UINT8* Ent1B = nullptr;
+	UINT16* Ent2B = nullptr;
 
 	// ReadBits Variables
 	FUINT8 BitsToRead;

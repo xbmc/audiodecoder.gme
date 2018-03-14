@@ -1373,7 +1373,14 @@ INLINE void chan7_calc(YM2151 *PSG)
 		noiseout = 0;
 		if (env < 0x3ff)
 			noiseout = (env ^ 0x3ff) * 2;	/* range of the YM2151 noise output is -2044 to 2040 */
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4146)
+#endif
 		PSG->chanout[7] += ((PSG->noise_rng&0x10000) ? noiseout: -noiseout); /* bit 16 -> output */
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 	}
 	else
 	{

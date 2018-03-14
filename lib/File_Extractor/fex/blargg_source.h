@@ -72,11 +72,11 @@ otherwise continues normally. */
 template<typename T> T blargg_min( T x, T y ) { return x < y ? x : y; }
 template<typename T> T blargg_max( T x, T y ) { return x > y ? x : y; }
 
-#undef  min
-#define min blargg_min
+//#undef  min
+//#define min blargg_min
 
-#undef  max
-#define max blargg_max
+//#undef  max
+//#define max blargg_max
 
 // typedef unsigned char byte;
 typedef unsigned char blargg_byte;

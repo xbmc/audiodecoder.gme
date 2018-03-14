@@ -123,7 +123,14 @@ void Hes_Apu::run_osc( Blip_Synth_Fast& syn, Osc& o, blip_time_t end_time )
 				unsigned lfsr = o.lfsr;
 				do
 				{
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4146)
+#endif
 					int new_dac = -(lfsr & 1);
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 					lfsr = (lfsr >> 1) ^ (0x30061 & new_dac);
 					
 					int delta = (new_dac &= 0x1F) - dac;

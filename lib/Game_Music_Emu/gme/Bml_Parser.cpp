@@ -144,7 +144,7 @@ Bml_Node const& Bml_Node::getChild(size_t index) const
 
 Bml_Node & Bml_Node::walkToNode(const char *path, bool use_indexes)
 {
-    Bml_Node * next_node;
+    Bml_Node * next_node = nullptr;
     Bml_Node * node = this;
     while ( *path )
     {
@@ -210,7 +210,7 @@ Bml_Node & Bml_Node::walkToNode(const char *path, bool use_indexes)
 
 Bml_Node const& Bml_Node::walkToNode(const char *path) const
 {
-    Bml_Node const* next_node;
+    Bml_Node const* next_node = nullptr;
     Bml_Node const* node = this;
     while ( *path )
     {

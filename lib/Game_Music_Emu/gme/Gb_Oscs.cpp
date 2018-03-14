@@ -449,7 +449,14 @@ static unsigned run_lfsr( unsigned s, unsigned mask, int count )
 	{
 		// won't fully replace upper 8 bits, so have to do the unoptimized way
 		while ( --count >= 0 )
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4146)
+#endif
 			s = (s >> 1 | mask) ^ (mask & -((s - 1) & 2));
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 	}
 	else
 	{

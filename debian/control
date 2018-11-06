@@ -1,0 +1,21 @@
+Source: kodi-audiodecoder-gme
+Priority: extra
+Maintainer: Arne Morten Kvarving <cptspiff@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), cmake, kodi-addon-dev,
+               libkodiplatform-dev (>= 17.1.0)
+Standards-Version: 3.9.6
+Section: libs
+
+Package: kodi-audiodecoder-gme
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: 2SF audio decoder for Kodi
+  GME audio decoder for Kodi
+
+Package: kodi-audiodecoder-gme-dbg
+Section: debug
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: debug symbols for GME audio decoder for Kodi
+  debug symbols for GME audio decoder for Kodi

@@ -1,9 +1,5 @@
+cmake_minimum_required(VERSION 3.5)
 project(fileex)
-
-enable_language(C)
-enable_language(CXX)
-
-cmake_minimum_required(VERSION 2.6)
 
 set (SOURCES fex/fex.cpp
              fex/blargg_common.cpp

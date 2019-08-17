@@ -1,9 +1,5 @@
+cmake_minimum_required(VERSION 3.5)
 project(gme)
-
-enable_language(C)
-enable_language(CXX)
-
-cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES gme/Ay_Apu.cpp
             gme/Ay_Core.cpp

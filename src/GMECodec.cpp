@@ -26,8 +26,7 @@ struct GMEContext {
   int len;
 };
 
-class CGMECodec : public kodi::addon::CInstanceAudioDecoder,
-                  public kodi::addon::CAddonBase
+class ATTRIBUTE_HIDDEN CGMECodec : public kodi::addon::CInstanceAudioDecoder
 {
 public:
   CGMECodec(KODI_HANDLE instance) :

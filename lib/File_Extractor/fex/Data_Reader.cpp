@@ -499,7 +499,23 @@ blargg_wchar_t* blargg_to_wide( const char* path )
 	return wpath;
 }
 
-#ifdef _WIN32
+#if defined(BUILD_KODI_ADDON)
+static inline FILE* blargg_fopen(const char path[], const char mode[])
+{
+  if (!path)
+    return nullptr;
+
+  kodi::vfs::CFile* file = new kodi::vfs::CFile;
+  if (!file->OpenFile(path, 0))
+  {
+    delete file;
+    return nullptr;
+  }
+
+  return (FILE*)file;
+}
+
+#elif defined(_WIN32)
 
 static FILE* blargg_fopen( const char path [], const char mode [] )
 {
@@ -524,18 +540,6 @@ static FILE* blargg_fopen( const char path [], const char mode [] )
 	return file;
 }
 
-#elif defined(BUILD_KODI_ADDON)
-static inline FILE* blargg_fopen(const char path [], const char mode [])
-{
-  kodi::vfs::CFile* file = new kodi::vfs::CFile;
-  if (!file->OpenFile(path, 0))
-  {
-    delete file;
-    return nullptr;
-  }
-  return (FILE*)file;
-}
-
 #else
 
 static inline FILE* blargg_fopen( const char path [], const char mode [] )
@@ -553,11 +557,15 @@ static inline void blargg_fclose(void* f)
 
 static int blargg_fread(void* p, int size, int num, void* file)
 {
+  if (!file)
+    return -1;
   return static_cast<kodi::vfs::CFile*>(file)->Read(p, size*num);
 }
 
 static int blargg_feof(void* f)
 {
+  if (!f)
+    return -1;
   kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(f);
   return file->GetPosition() == file->GetLength();
 }
@@ -632,8 +640,8 @@ static blargg_err_t blargg_fsize( FILE* f, long* out )
 blargg_err_t Std_File_Reader::open( const char path [] )
 {
 	close();
-	
-	FILE* f;
+
+	FILE* f = nullptr;
 	RETURN_ERR( blargg_fopen( &f, path ) );
 	
 	long s;

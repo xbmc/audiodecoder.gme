@@ -27,7 +27,7 @@ Example with file data of size 0x0C put at address 0x0F, with page size of 8:
 ^       ^       ^       ^       ^       ^       ^       ^       ^   
 0     0x08     0x10    0x18    0x20    0x28    0x30    0x38    0x40
 
-at_addr(0x00) = pointer to 8 bytes of fill.
+at_add[5~r(0x00) = pointer to 8 bytes of fill.
 at_addr(0x08) = pointer to 7 bytes of fill, followed by first byte of file.
 at_addr(0x10) = pointer to next 8 bytes of file.
 at_addr(0x18) = pointer to last 3 bytes of file, followed by 5 bytes of fill.

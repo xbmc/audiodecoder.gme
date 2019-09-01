@@ -124,9 +124,7 @@ set(SOURCES gme/Ay_Apu.cpp
 
 add_definitions(-DHAVE_STDINT_H)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fPIC")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-
 include_directories(../File_Extractor/fex)
 
 add_library(gme STATIC ${SOURCES})
+set_property(TARGET gme PROPERTY POSITION_INDEPENDENT_CODE ON)

@@ -10,7 +10,5 @@ set (SOURCES fex/fex.cpp
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-
 add_library(fileex STATIC ${SOURCES})
+set_property(TARGET fileex PROPERTY POSITION_INDEPENDENT_CODE ON)

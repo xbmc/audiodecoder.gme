@@ -41,11 +41,11 @@ public:
       gme_delete(ctx.gme);
   }
 
-  virtual bool Init(const std::string& filename, unsigned int filecache,
-                    int& channels, int& samplerate,
-                    int& bitspersample, int64_t& totaltime,
-                    int& bitrate, AEDataFormat& format,
-                    std::vector<AEChannel>& channellist) override
+  bool Init(const std::string& filename, unsigned int filecache,
+            int& channels, int& samplerate,
+            int& bitspersample, int64_t& totaltime,
+            int& bitrate, AEDataFormat& format,
+            std::vector<AEChannel>& channellist) override
   {
     int track=0;
     std::string toLoad(filename);
@@ -81,7 +81,7 @@ public:
     return true;
   }
 
-  virtual int ReadPCM(uint8_t* buffer, int size, int& actualsize) override
+  int ReadPCM(uint8_t* buffer, int size, int& actualsize) override
   {
     if (gme_tell(ctx.gme) >= ctx.len)
       return -1;
@@ -90,14 +90,14 @@ public:
     return 0;
   }
 
-  virtual int64_t Seek(int64_t time) override
+  int64_t Seek(int64_t time) override
   {
     gme_seek(ctx.gme, time);
     return gme_tell(ctx.gme);
   }
 
-  virtual bool ReadTag(const std::string& filename, std::string& title,
-                       std::string& artist, int& length) override
+  bool ReadTag(const std::string& filename, std::string& title,
+               std::string& artist, int& length) override
   {
     gme_t* gme=nullptr;
     gme_open_file(filename.c_str(), &gme, 48000);
@@ -115,7 +115,7 @@ public:
     return true;
   }
 
-  virtual int TrackCount(const std::string& fileName) override
+  int TrackCount(const std::string& fileName) override
   {
     gme_t* gme=nullptr;
     gme_open_file(fileName.c_str(), &gme, 48000);
@@ -136,15 +136,13 @@ private:
 class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
-  CMyAddon() { }
-  virtual ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  CMyAddon() = default;
+  ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
   {
     addonInstance = new CGMECodec(instance);
     return ADDON_STATUS_OK;
   }
-  virtual ~CMyAddon()
-  {
-  }
+  virtual ~CMyAddon() = default;
 };
 
 

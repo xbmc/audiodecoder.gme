@@ -149,4 +149,3 @@ void Nes_Namco_Apu::run_until( blip_time_t nes_end_time )
 	
 	last_time = nes_end_time;
 }
-

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="audiodecoder.gme"
-  version="2.2.1"
+  version="2.2.2"
   name="GME Audio Decoder"
   provider-name="spiff">
   <requires>@ADDON_DEPENDS@</requires>
@@ -25,8 +25,12 @@ Suppoted Formats:
 - NSF/NSFE: Nintendo NES/Famicom (with VRC 6, Namco 106, and FME-7 sound)
 - SAP: Atari systems using POKEY sound chip
 - SPC: Super Nintendo/Super Famicom
-- VGM/VGZ: Sega Master System/Mark III, Sega Genesis/Mega Drive,BBC Micro
-</description>
+- VGM/VGZ: Sega Master System/Mark III, Sega Genesis/Mega Drive,BBC Micro</description>
     <platform>@PLATFORM@</platform>
+    <license>GPL-2.0</license>
+    <source>https://github.com/xbmc/audiodecoder.gme</source>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
   </extension>
 </addon>

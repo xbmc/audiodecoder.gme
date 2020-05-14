@@ -13,8 +13,8 @@
     tracks="true"
     library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">Game Music Emu Audio Decoder</summary>
-    <description lang="en">Game Music Emu (GME) format is used to emulate the audio output of various video game consoles popular in the 1980s and 1990s. It gives a "retro" feel to the sound.
+    <summary lang="en_GB">Game Music Emu Audio Decoder</summary>
+    <description lang="en_GB">Game Music Emu (GME) format is used to emulate the audio output of various video game consoles popular in the 1980s and 1990s. It gives a "retro" feel to the sound.
 
 Suppoted Formats:
 - AY: ZX Spectrum/Amstrad CPC

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="audiodecoder.gme"
-  version="2.2.2"
+  version="2.2.3"
   name="GME Audio Decoder"
   provider-name="spiff">
   <requires>@ADDON_DEPENDS@</requires>
@@ -13,8 +13,8 @@
     tracks="true"
     library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">Game Music Emu Audio Decoder</summary>
-    <description lang="en">Game Music Emu (GME) format is used to emulate the audio output of various video game consoles popular in the 1980s and 1990s. It gives a "retro" feel to the sound.
+    <summary lang="en_GB">Game Music Emu Audio Decoder</summary>
+    <description lang="en_GB">Game Music Emu (GME) format is used to emulate the audio output of various video game consoles popular in the 1980s and 1990s. It gives a "retro" feel to the sound.
 
 Suppoted Formats:
 - AY: ZX Spectrum/Amstrad CPC
@@ -27,7 +27,7 @@ Suppoted Formats:
 - SPC: Super Nintendo/Super Famicom
 - VGM/VGZ: Sega Master System/Mark III, Sega Genesis/Mega Drive,BBC Micro</description>
     <platform>@PLATFORM@</platform>
-    <license>GPL-2.0</license>
+    <license>GPL-2.0-or-later</license>
     <source>https://github.com/xbmc/audiodecoder.gme</source>
     <assets>
       <icon>icon.png</icon>

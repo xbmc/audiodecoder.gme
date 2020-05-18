@@ -2,8 +2,10 @@
 
 This is a [Kodi](https://kodi.tv) audio decoder addon for various game music files.
 
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
 [![Build Status](https://travis-ci.org/xbmc/audiodecoder.gme.svg?branch=Matrix)](https://travis-ci.org/xbmc/audiodecoder.gme/branches)
 [![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.audiodecoder.gme?branchName=Matrix)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=5&branchName=Matrix)
+[![Build Status](https://jenkins.kodi.tv/view/Addons/job/xbmc/job/audiodecoder.gme/job/Matrix/badge/icon)](https://jenkins.kodi.tv/blue/organizations/jenkins/xbmc%2Faudiodecoder.gme/branches/)
 <!--- [![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/audiodecoder.gme?branch=Matrix&svg=true)](https://ci.appveyor.com/project/xbmc/audiodecoder-gme?branch=Matrix) -->
 
 ## Build instructions

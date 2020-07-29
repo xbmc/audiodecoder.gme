@@ -32,8 +32,8 @@ public:
   bool Init(const std::string& filename, unsigned int filecache,
             int& channels, int& samplerate,
             int& bitspersample, int64_t& totaltime,
-            int& bitrate, AEDataFormat& format,
-            std::vector<AEChannel>& channellist) override
+            int& bitrate, AudioEngineDataFormat& format,
+            std::vector<AudioEngineChannel>& channellist) override
   {
     int track=0;
     std::string toLoad(filename);
@@ -59,11 +59,11 @@ public:
     samplerate = 48000;
     bitspersample = 16;
     bitrate = 0.0;
-    format = AE_FMT_S16NE;
+    format = AUDIOENGINE_FMT_S16NE;
     gme_info_t* out;
     gme_track_info(ctx.gme, &out, track);
     totaltime = ctx.len = out->play_length;
-    channellist = { AE_CH_FL, AE_CH_FR };
+    channellist = { AUDIOENGINE_CH_FL, AUDIOENGINE_CH_FR };
     gme_start_track(ctx.gme, track);
 
     return true;
@@ -84,8 +84,7 @@ public:
     return gme_tell(ctx.gme);
   }
 
-  bool ReadTag(const std::string& filename, std::string& title,
-               std::string& artist, int& length) override
+  bool ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag) override
   {
     gme_t* gme=nullptr;
     gme_open_file(filename.c_str(), &gme, 48000);
@@ -94,11 +93,11 @@ public:
 
     gme_info_t* out;
     gme_track_info(gme, &out, 0);
-    length = out->play_length/1000;
-    title = out->song;
-    if (title.empty())
-      title = out->game;
-    artist = out->author;
+    tag.SetDuration( out->play_length/1000);
+    tag.SetTitle(out->song);
+    if (tag.GetTitle().empty())
+      tag.SetTitle(out->game);
+    tag.SetArtist(out->author);
     gme_delete(gme);
     return true;
   }

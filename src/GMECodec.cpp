@@ -88,11 +88,19 @@ bool CGMECodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderIn
 
   gme_info_t* out;
   gme_track_info(gme, &out, 0);
+  tag.SetSamplerate(48000);
+  tag.SetChannels(2);
   tag.SetDuration(out->play_length / 1000);
-  tag.SetTitle(out->song);
-  if (tag.GetTitle().empty())
+  if (out->song)
+    tag.SetTitle(out->song);
+  if (out->game && tag.GetTitle().empty())
     tag.SetTitle(out->game);
-  tag.SetArtist(out->author);
+  if (out->author)
+    tag.SetArtist(out->author);
+  if (out->game)
+    tag.SetAlbum(out->game);
+  if (out->comment)
+    tag.SetComment(out->comment);
   gme_delete(gme);
   return true;
 }

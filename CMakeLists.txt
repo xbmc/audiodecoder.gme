@@ -13,6 +13,7 @@ add_subdirectory(lib/File_Extractor)
 add_subdirectory(lib/Game_Music_Emu)
 
 set(GME_SOURCES src/GMECodec.cpp)
+set(GME_HEADERS src/GMECodec.h)
 
 set(DEPLIBS gme fileex)
 

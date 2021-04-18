@@ -1,0 +1,7 @@
+File_Extractor source from https://github.com/kode54/File_Extractor
+Sync to ?
+
+Note: Contains bigger changes to use on Kodi
+
+- https://bitbucket.org/kode54/file_extractor
+- https://git.lopez-snowhill.net/chris/file_extractor

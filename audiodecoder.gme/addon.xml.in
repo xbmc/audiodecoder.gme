@@ -17,7 +17,10 @@
     <summary lang="en_GB">Game Music Emu Audio Decoder</summary>
     <description lang="de_DE">Das GME-Format (Game Music Emu) wird verwendet, um die Audioausgabe verschiedener Videospielkonsolen zu emulieren, die in den 1980er und 1990er Jahren beliebt waren. Es gibt dem Sound ein "Retro" -Gefühl.
 
-Unterstützte Formate:
+[B]Hinweis:[/B]
+Nicht alle Dateiformate geben Länge und wird in diesem Fall auf 2,5 Minuten gesetzt.
+
+[B]Unterstützte Formate:[/B]
 - AY: ZX Spectrum/Amstrad CPC
 - GBS: Nintendo Game Boy
 - GYM: Sega Genesis/Mega Drive
@@ -29,7 +32,10 @@ Unterstützte Formate:
 - VGM/VGZ: Sega Master System/Mark III, Sega Genesis/Mega Drive,BBC Micro</description>
     <description lang="en_GB">Game Music Emu (GME) format is used to emulate the audio output of various video game consoles popular in the 1980s and 1990s. It gives a "retro" feel to the sound.
 
-Supported Formats:
+[B]Note:[/B]
+Not all file formats give length and in this case it is set to 2.5 minutes.
+
+[B]Supported Formats:[/B]
 - AY: ZX Spectrum/Amstrad CPC
 - GBS: Nintendo Game Boy
 - GYM: Sega Genesis/Mega Drive

@@ -1,6 +1,6 @@
 /*
- *  Copyright (C) 2014-2020 Arne Morten Kvarving
- *  Copyright (C) 2016-2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2014-2021 Arne Morten Kvarving
+ *  Copyright (C) 2016-2021 Team Kodi (https://kodi.tv)
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  *  See LICENSE.md for more information.
@@ -81,13 +81,29 @@ int64_t CGMECodec::Seek(int64_t time)
 
 bool CGMECodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag)
 {
+  int track = 0;
+  std::string toLoad(filename);
+  if (toLoad.rfind("stream") != std::string::npos)
+  {
+    size_t iStart = toLoad.rfind('-') + 1;
+    track = atoi(toLoad.substr(iStart, toLoad.size() - iStart - 10).c_str());
+    //  The directory we are in, is the file
+    //  that contains the bitstream to play,
+    //  so extract it
+    size_t slash = toLoad.rfind('\\');
+    if (slash == std::string::npos)
+      slash = toLoad.rfind('/');
+    toLoad = toLoad.substr(0, slash);
+  }
+
   gme_t* gme = nullptr;
-  gme_open_file(filename.c_str(), &gme, 48000);
+  gme_open_file(toLoad.c_str(), &gme, 48000);
   if (!gme)
     return false;
 
   gme_info_t* out;
-  gme_track_info(gme, &out, 0);
+  gme_track_info(gme, &out, track > 0 ? track - 1 : 0);
+  tag.SetTrack(track);
   tag.SetSamplerate(48000);
   tag.SetChannels(2);
   tag.SetDuration(out->play_length / 1000);

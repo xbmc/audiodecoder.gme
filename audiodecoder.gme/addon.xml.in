@@ -8,10 +8,48 @@
   <extension
     point="kodi.audiodecoder"
     name="gme"
-    extension=".gbs|.gym|.spc|.nsf|.nsfe|.vgm|.vgz|.kss|.hes|.ay|.sap|.sgc|.gmestream"
     tags="true"
     tracks="true"
-    library_@PLATFORM@="@LIBRARY_FILENAME@"/>
+    library_@PLATFORM@="@LIBRARY_FILENAME@">
+    <support>
+      <extension name=".gbs">
+        <description>30100</description>
+      </extension>
+      <extension name=".gym">
+        <description>30101</description>
+      </extension>
+      <extension name=".spc">
+        <description>30102</description>
+      </extension>
+      <extension name=".nsf">
+        <description>30103</description>
+      </extension>
+      <extension name=".nsfe">
+        <description>30104</description>
+      </extension>
+      <extension name=".vgm">
+        <description>30105</description>
+      </extension>
+      <extension name=".vgz">
+        <description>30106</description>
+      </extension>
+      <extension name=".kss">
+        <description>30107</description>
+      </extension>
+      <extension name=".hes">
+        <description>30108</description>
+      </extension>
+      <extension name=".ay">
+        <description>30109</description>
+      </extension>
+      <extension name=".sap">
+        <description>30110</description>
+      </extension>
+      <extension name=".sgc">
+        <description>30111</description>
+      </extension>
+    </support>
+  </extension>
   <extension point="xbmc.addon.metadata">
     <platform>@PLATFORM@</platform>
     <license>GPL-2.0-or-later</license>

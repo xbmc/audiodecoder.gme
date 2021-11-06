@@ -32,19 +32,11 @@ bool CGMECodec::Init(const std::string& filename,
                      std::vector<AudioEngineChannel>& channellist)
 {
   int track = 0;
-  std::string toLoad(filename);
-  if (toLoad.rfind("stream") != std::string::npos)
-  {
-    size_t iStart = toLoad.rfind('-') + 1;
-    track = atoi(toLoad.substr(iStart, toLoad.size() - iStart - 10).c_str()) - 1;
-    //  The directory we are in, is the file
-    //  that contains the bitstream to play,
-    //  so extract it
-    size_t slash = toLoad.rfind('\\');
-    if (slash == std::string::npos)
-      slash = toLoad.rfind('/');
-    toLoad = toLoad.substr(0, slash);
-  }
+  const std::string toLoad = kodi::addon::CInstanceAudioDecoder::GetTrack("gme", filename, track);
+
+  // Correct if packed sound file with several sounds
+  if (track > 0)
+    --track;
 
   gme_open_file(toLoad.c_str(), &ctx.gme, 48000);
   if (!ctx.gme)
@@ -64,13 +56,13 @@ bool CGMECodec::Init(const std::string& filename,
   return true;
 }
 
-int CGMECodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
+int CGMECodec::ReadPCM(uint8_t* buffer, size_t size, size_t& actualsize)
 {
   if (gme_tell(ctx.gme) >= ctx.len)
-    return -1;
+    return AUDIODECODER_READ_EOF;
   actualsize = size;
   gme_play(ctx.gme, size / 2, (short*)buffer);
-  return 0;
+  return AUDIODECODER_READ_SUCCESS;
 }
 
 int64_t CGMECodec::Seek(int64_t time)
@@ -82,19 +74,7 @@ int64_t CGMECodec::Seek(int64_t time)
 bool CGMECodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag)
 {
   int track = 0;
-  std::string toLoad(filename);
-  if (toLoad.rfind("stream") != std::string::npos)
-  {
-    size_t iStart = toLoad.rfind('-') + 1;
-    track = atoi(toLoad.substr(iStart, toLoad.size() - iStart - 10).c_str());
-    //  The directory we are in, is the file
-    //  that contains the bitstream to play,
-    //  so extract it
-    size_t slash = toLoad.rfind('\\');
-    if (slash == std::string::npos)
-      slash = toLoad.rfind('/');
-    toLoad = toLoad.substr(0, slash);
-  }
+  const std::string toLoad = kodi::addon::CInstanceAudioDecoder::GetTrack("gme", filename, track);
 
   gme_t* gme = nullptr;
   gme_open_file(toLoad.c_str(), &gme, 48000);
@@ -136,7 +116,7 @@ int CGMECodec::TrackCount(const std::string& fileName)
 
 //------------------------------------------------------------------------------
 
-class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
+class ATTR_DLL_LOCAL CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;

@@ -21,7 +21,7 @@ struct GMEContext
 class ATTR_DLL_LOCAL CGMECodec : public kodi::addon::CInstanceAudioDecoder
 {
 public:
-  CGMECodec(KODI_HANDLE instance, const std::string& version);
+  CGMECodec(const kodi::addon::IInstanceInfo& instance);
   virtual ~CGMECodec();
 
   bool Init(const std::string& filename,

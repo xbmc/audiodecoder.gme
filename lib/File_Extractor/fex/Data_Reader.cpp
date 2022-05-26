@@ -559,7 +559,7 @@ static int blargg_fread(void* p, int size, int num, void* file)
 {
   if (!file)
     return -1;
-  return static_cast<kodi::vfs::CFile*>(file)->Read(p, size*num);
+  return static_cast<kodi::vfs::CFile*>(file)->Read(static_cast<uint8_t*>(p), size*num);
 }
 
 static int blargg_feof(void* f)
